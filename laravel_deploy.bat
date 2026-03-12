@@ -8,7 +8,7 @@ set "TARGET_FOLDER=%~1"
 
 if "%TARGET_FOLDER%"=="" (
     echo Drag and drop folder ke batch file ini, atau
-    echo Usage: laravel_deploy.bat "C:\path\to\laravel\project"
+    echo Usage: laravel_deploy.bat "C:\project-lara"
     pause
     exit /b 1
 )

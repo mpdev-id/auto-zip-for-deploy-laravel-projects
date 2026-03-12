@@ -22,7 +22,7 @@ class LaravelDeployGUI:
         self.output_name = f"{self.folder_name}_deploy_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
         self.output_path = self.target_folder.parent / self.output_name
         
-        # Setup patterns (sama seperti sebelumnya)
+        # Setup patterns
         self.include_patterns = [
             'app/**',
             'bootstrap/app.php',
@@ -138,7 +138,8 @@ class LaravelDeployGUI:
         header = ttk.Frame(self.root, padding="20")
         header.pack(fill='x')
         
-        ttk.Label(header, text="🚀 Laravel Deploy Packager", 
+        # Gunakan ASCII art alih-alih emoji
+        ttk.Label(header, text="[LARAVEL DEPLOY PACKAGER]", 
                  style='Title.TLabel').pack(anchor='w')
         ttk.Label(header, text=f"Target: {self.target_folder}", 
                  style='Info.TLabel').pack(anchor='w', pady=(5,0))
@@ -169,15 +170,15 @@ class LaravelDeployGUI:
         btn_frame = ttk.Frame(content)
         btn_frame.pack(fill='x', pady=20)
         
-        self.btn_preview = ttk.Button(btn_frame, text="📋 Preview File", 
+        self.btn_preview = ttk.Button(btn_frame, text="[ Preview File ]", 
                                      command=self.run_preview, width=20)
         self.btn_preview.pack(side='left', padx=5)
         
-        self.btn_create = ttk.Button(btn_frame, text="📦 Create ZIP", 
+        self.btn_create = ttk.Button(btn_frame, text="[ Create ZIP ]", 
                                     command=self.run_create_zip, width=20)
         self.btn_create.pack(side='left', padx=5)
         
-        self.btn_open = ttk.Button(btn_frame, text="📂 Open Folder", 
+        self.btn_open = ttk.Button(btn_frame, text="[ Open Folder ]", 
                                   command=self.open_folder, width=20, state='disabled')
         self.btn_open.pack(side='left', padx=5)
         
@@ -289,7 +290,6 @@ class LaravelDeployGUI:
                 self.log(f"Excluded: {excluded} files")
                 self.log("-" * 50)
                 
-                # Show sample
                 self.log("Sample included files:")
                 for f in sorted([f[1] for f in files])[:15]:
                     self.log(f"  + {f}")
@@ -381,7 +381,6 @@ class LaravelDeployGUI:
 
 def main():
     if len(sys.argv) < 2:
-        # Jika dijalankan tanpa argumen, buka file dialog
         root = tk.Tk()
         root.withdraw()
         from tkinter import filedialog
