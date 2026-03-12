@@ -3,12 +3,12 @@ chcp 65001 >nul
 title Laravel Deploy Packager
 
 :: Path ke python script (sesuaikan!)
-set "SCRIPT_PATH=C:\Tools\laravel_deploy.py"
+set "SCRIPT_PATH=D:\MP\dev\www\laravel_deploy.py"
 set "TARGET_FOLDER=%~1"
 
 if "%TARGET_FOLDER%"=="" (
     echo Drag and drop folder ke batch file ini, atau
-    echo Usage: laravel_deploy.bat "C:\project-lara"
+    echo Usage: laravel_deploy.bat "D:\MP\dev\www"
     pause
     exit /b 1
 )

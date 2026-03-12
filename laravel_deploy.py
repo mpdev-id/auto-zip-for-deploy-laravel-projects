@@ -25,8 +25,7 @@ class LaravelDeployGUI:
         # Setup patterns
         self.include_patterns = [
             'app/**',
-            'bootstrap/app.php',
-            'bootstrap/providers.php',
+            'bootstrap/**',  # Include seluruh folder bootstrap
             'config/**',
             'database/**',
             'lang/**',
@@ -40,9 +39,12 @@ class LaravelDeployGUI:
             'public/favicon.ico',
             'public/index.php',
             'public/robots.txt',
-            'storage/app/public/.gitignore',
-            'storage/framework/.gitignore',
-            'storage/logs/.gitignore',
+            
+            # Storage - include seluruh struktur
+            'storage/app/**',
+            'storage/framework/**',  # Include seluruh framework folder
+            'storage/logs/**',
+            
             'composer.json',
             'composer.lock',
             'package-lock.json',
@@ -60,13 +62,15 @@ class LaravelDeployGUI:
             'resources/less/**',
             'resources/ts/**',
             'resources/assets/**',
-            'bootstrap/cache/*.php',
-            'storage/framework/cache/**',
-            'storage/framework/sessions/**',
-            'storage/framework/views/**',
-            'storage/framework/testing/**',
+            
+            # Exclude isi cache tapi keep folder structure
+            'storage/framework/cache/data/**',
+            'storage/framework/sessions/*',
+            'storage/framework/views/*',
+            'storage/framework/testing/*',
             'storage/logs/*.log',
             'storage/debugbar/**',
+            
             '.git/**',
             '.gitignore',
             '.gitattributes',
@@ -82,7 +86,7 @@ class LaravelDeployGUI:
             '.phpunit.result.cache',
             'coverage/**',
             '.env',
-            '.env.*',
+           # '.env.*',
             'docker-compose*.yml',
             'docker-compose*.yaml',
             'Dockerfile*',
@@ -121,6 +125,28 @@ class LaravelDeployGUI:
             '*.zip',
         ]
         
+        # Struktur folder yang wajib ada (akan dibuat jika tidak ada)
+        self.required_folders = [
+            'bootstrap/cache',
+            'storage/framework/cache/data',
+            'storage/framework/sessions',
+            'storage/framework/views',
+            'storage/framework/testing',
+            'storage/logs',
+            'storage/app/public',
+            'public/storage',  # Symlink target
+        ]
+        
+        # File .gitignore untuk folder storage
+        self.storage_gitignores = {
+            'storage/framework/cache': "*\n!.gitignore",
+            'storage/framework/sessions': "*\n!.gitignore", 
+            'storage/framework/views': "*\n!.gitignore",
+            'storage/framework/testing': "*\n!.gitignore",
+            'storage/logs': "*\n!.gitignore",
+            'storage/app/public': "*\n!.gitignore",
+        }
+        
         self.setup_gui()
     
     def setup_gui(self):
@@ -138,7 +164,6 @@ class LaravelDeployGUI:
         header = ttk.Frame(self.root, padding="20")
         header.pack(fill='x')
         
-        # Gunakan ASCII art alih-alih emoji
         ttk.Label(header, text="[LARAVEL DEPLOY PACKAGER]", 
                  style='Title.TLabel').pack(anchor='w')
         ttk.Label(header, text=f"Target: {self.target_folder}", 
@@ -276,6 +301,25 @@ class LaravelDeployGUI:
         
         return files_to_zip, excluded_count
     
+    def create_required_structure(self, zipf):
+        """Buat struktur folder wajib dan file .gitignore di dalam ZIP"""
+        self.log("Creating required folder structure...")
+        
+        for folder in self.required_folders:
+            # Buat entry folder kosong di ZIP
+            zipf.writestr(f"{folder}/.gitkeep", "")
+            
+            # Buat .gitignore jika ada di mapping
+            parent_folder = folder
+            if parent_folder in self.storage_gitignores:
+                gitignore_content = self.storage_gitignores[parent_folder]
+                zipf.writestr(f"{parent_folder}/.gitignore", gitignore_content)
+                self.log(f"  Created: {parent_folder}/.gitignore")
+            elif 'storage' in parent_folder:
+                # Default .gitignore untuk folder storage
+                zipf.writestr(f"{parent_folder}/.gitignore", "*\n!.gitignore")
+                self.log(f"  Created: {parent_folder}/.gitignore")
+    
     def run_preview(self):
         self.btn_preview.config(state='disabled')
         self.set_status("Scanning files...", "blue")
@@ -288,6 +332,7 @@ class LaravelDeployGUI:
                 self.log(f"SCAN RESULT:")
                 self.log(f"Included: {len(files)} files")
                 self.log(f"Excluded: {excluded} files")
+                self.log(f"Required folders: {len(self.required_folders)}")
                 self.log("-" * 50)
                 
                 self.log("Sample included files:")
@@ -296,7 +341,12 @@ class LaravelDeployGUI:
                 if len(files) > 15:
                     self.log(f"  ... and {len(files)-15} more")
                 
-                self.set_status(f"Preview selesai. {len(files)} files akan di-include", "green")
+                self.log("-" * 50)
+                self.log("Required structure yang akan dibuat:")
+                for folder in self.required_folders:
+                    self.log(f"  + {folder}/")
+                
+                self.set_status(f"Preview selesai. {len(files)} files + {len(self.required_folders)} folders", "green")
                 
             except Exception as e:
                 self.log(f"ERROR: {str(e)}")
@@ -323,10 +373,11 @@ class LaravelDeployGUI:
                 
                 total_size = 0
                 with zipfile.ZipFile(self.output_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    # 1. Tambahkan file-file yang discan
                     for idx, (file_path, arcname) in enumerate(files_to_zip, 1):
                         if idx % 50 == 0:
                             percent = (idx / len(files_to_zip)) * 100
-                            self.set_status(f"Processing... {percent:.0f}%", "blue")
+                            self.set_status(f"Processing files... {percent:.0f}%", "blue")
                             self.root.update()
                         
                         try:
@@ -335,6 +386,10 @@ class LaravelDeployGUI:
                             total_size += size
                         except Exception as e:
                             self.log(f"Warning: Skip {arcname} - {e}")
+                    
+                    # 2. Buat struktur folder wajib
+                    self.set_status("Creating required folders...", "blue")
+                    self.create_required_structure(zipf)
                 
                 zip_size = self.output_path.stat().st_size
                 compression = (1 - zip_size/total_size)*100 if total_size > 0 else 0
@@ -346,13 +401,15 @@ class LaravelDeployGUI:
                 self.log(f"Original size: {self.format_size(total_size)}")
                 self.log(f"ZIP size: {self.format_size(zip_size)}")
                 self.log(f"Compression: {compression:.1f}%")
+                self.log(f"Required folders created: {len(self.required_folders)}")
                 
                 self.set_status("ZIP berhasil dibuat!", "green")
                 self.btn_open.config(state='normal')
                 
                 messagebox.showinfo("Sukses", 
                     f"Package berhasil dibuat!\n\nFile: {self.output_name}\n"
-                    f"Size: {self.format_size(zip_size)}\n\n"
+                    f"Size: {self.format_size(zip_size)}\n"
+                    f"Folders: {len(self.required_folders)} structure created\n\n"
                     f"Lokasi: {self.output_path.parent}")
                 
             except Exception as e:

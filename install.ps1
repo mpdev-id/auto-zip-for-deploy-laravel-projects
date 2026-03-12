@@ -1,7 +1,7 @@
 # Laravel Deploy Packager Installer
 # Jalankan sebagai Administrator
 
-$installDir = "C:\Tools\LaravelDeploy"
+$installDir = "C:\Tools"
 $regFile = "$env:TEMP\laravel_deploy_context.reg"
 
 Write-Host "=== Laravel Deploy Packager Installer ===" -ForegroundColor Cyan
@@ -30,7 +30,7 @@ $regContent = @"
 Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\Directory\shell\LaravelDeploy]
-@="🚀 Deploy Laravel Project"
+@="Deploy Laravel Project"
 "Icon"="C:\\Windows\\System32\\shell32.dll,14"
 
 [HKEY_CLASSES_ROOT\Directory\shell\LaravelDeploy\command]
