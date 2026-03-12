@@ -1,0 +1,19 @@
+Windows Registry Editor Version 5.00
+
+; Laravel Deploy Packager - Context Menu Integration
+; Ganti C:\\Tools\\ dengan path sebenarnya dimana Anda menyimpan file!
+
+[HKEY_CLASSES_ROOT\Directory\shell\LaravelDeploy]
+@="🚀 Deploy Laravel Project"
+"Icon"="C:\\Windows\\System32\\shell32.dll,14"
+
+[HKEY_CLASSES_ROOT\Directory\shell\LaravelDeploy\command]
+@="\"C:\\Tools\\laravel_deploy.bat\" \"%V\""
+
+; Untuk background folder (klik kanan di empty space)
+[HKEY_CLASSES_ROOT\Directory\Background\shell\LaravelDeploy]
+@="🚀 Deploy Laravel Project"
+"Icon"="C:\\Windows\\System32\\shell32.dll,14"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\LaravelDeploy\command]
+@="\"C:\\Tools\\laravel_deploy.bat\" \"%V\""
