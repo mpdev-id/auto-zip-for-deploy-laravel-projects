@@ -37,7 +37,7 @@ Windows Registry Editor Version 5.00
 @="\\`"$installDir\laravel_deploy.bat\\`" \`"%V\\`""
 
 [HKEY_CLASSES_ROOT\Directory\Background\shell\LaravelDeploy]
-@="🚀 Deploy Laravel Project"
+@="Deploy Laravel Project"
 "Icon"="C:\\Windows\\System32\\shell32.dll,14"
 
 [HKEY_CLASSES_ROOT\Directory\Background\shell\LaravelDeploy\command]
@@ -49,10 +49,10 @@ Set-Content -Path $regFile -Value $regContent -Encoding ASCII
 Write-Host "`nInstalling context menu..." -ForegroundColor Yellow
 Start-Process regedit.exe -ArgumentList "/s `"$regFile`"" -Wait
 
-Write-Host "`n✅ Installation Complete!" -ForegroundColor Green
+Write-Host "`nInstallation Complete!" -ForegroundColor Green
 Write-Host "Cara pakai:" -ForegroundColor Cyan
 Write-Host "1. Klik kanan folder Laravel project" 
-Write-Host "2. Pilih '🚀 Deploy Laravel Project'"
+Write-Host "2. Pilih 'Deploy Laravel Project'"
 Write-Host "3. Pilih Preview atau Create ZIP"
 
 Remove-Item $regFile -Force
